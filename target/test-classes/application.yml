@@ -1,0 +1,13 @@
+admin:
+  baseUrl: http://fake.com/api/emr/example
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/test
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: create
+  liquibase:
+    enabled: false
