@@ -5,6 +5,7 @@ import com.emr.example.controller.resource.CarResponse;
 import com.emr.example.exceptions.ObjectNotFoundException;
 import com.emr.example.model.Car;
 import com.emr.example.repository.CarRepository;
+import com.emr.example.service.CarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,42 +18,49 @@ import java.util.stream.Collectors;
 @RequestMapping("/cars")
 public class CarController {
 
-    private final CarRepository carRepository;
+    private final CarService carService;
 
     @GetMapping
-    public List<CarResponse> getCars() {
+    public List<CarResponse> getAll() {
 
-        var cars = carRepository.findAll();
+        var cars = carService.getCars();
 
         return cars.stream().map(Car::toResourceObject).collect(Collectors.toList());
     }
 
-    @PostMapping(consumes = "application/json", produces = "application/json")
+    @PostMapping(consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public CarResponse createCreate(@RequestBody CarResource carResource) {
+    public CarResponse create(@RequestBody CarResource carResource) {
 
         var car = carResource.toModelObject();
-        carRepository.save(car);
+
+        var createdCar = carService.createCar(car);
+
+        return createdCar.toResourceObject();
+    }
+
+    @GetMapping("/{id}")
+    public CarResponse get(@PathVariable Integer id) {
+
+        var car = carService.getCar(id);
 
         return car.toResourceObject();
     }
 
-    @GetMapping("/{id}")
-    public CarResponse getCar(@PathVariable Integer id) {
+    @PutMapping(value = "/{id}", consumes = "application/json")
+    public CarResponse update(@PathVariable Integer id, @RequestBody CarResource carResource) {
 
-        var carOpt = carRepository.findById(id);
+        var car = carResource.toModelObject();
 
-        if (carOpt.isEmpty()) {
-            throw new ObjectNotFoundException(id);
-        }
+        var updatedCar = carService.updateCar(id, car);
 
-        return carOpt.get().toResourceObject();
+        return updatedCar.toResourceObject();
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCar(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
 
-        carRepository.deleteById(id);
+        carService.deleteCar(id);
     }
 }

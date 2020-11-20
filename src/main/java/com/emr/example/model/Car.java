@@ -25,6 +25,9 @@ public class Car implements ModelObject<CarResponse> {
     @Column(nullable = false)
     private String model;
 
+    @Column(nullable = false)
+    private String color;
+
     @Override
     public CarResponse toResourceObject() {
         CarResponse carResponse = new CarResponse();
@@ -32,6 +35,7 @@ public class Car implements ModelObject<CarResponse> {
         carResponse.setVin(vin);
         carResponse.setMake(make);
         carResponse.setModel(model);
+        carResponse.setColor(color);
 
         return carResponse;
     }

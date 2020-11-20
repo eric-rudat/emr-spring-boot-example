@@ -49,7 +49,7 @@ class CarControllerTest extends IntegrationTestBase {
         @Test
         void happyPath() throws Exception {
             // Arrange
-            var car = new Car().setVin("vin").setMake("make").setModel("model");
+            var car = new Car().setVin("vin").setMake("make").setModel("model").setColor("red");
             carRepository.save(car);
 
             // Act & Assert
@@ -59,7 +59,8 @@ class CarControllerTest extends IntegrationTestBase {
                     .andExpect(jsonPath("$[0].id", equalTo(car.getId())))
                     .andExpect(jsonPath("$[0].vin", equalTo(car.getVin())))
                     .andExpect(jsonPath("$[0].make", equalTo(car.getMake())))
-                    .andExpect(jsonPath("$[0].model", equalTo(car.getModel())));
+                    .andExpect(jsonPath("$[0].model", equalTo(car.getModel())))
+                    .andExpect(jsonPath("$[0].color", equalTo(car.getColor())));
         }
     }
 
@@ -69,7 +70,7 @@ class CarControllerTest extends IntegrationTestBase {
         @Test
         void happyPath() throws Exception {
             // Arrange
-            var carRequest = new CarResource().setVin("vin").setMake("make").setModel("model");
+            var carRequest = new CarResource().setVin("vin").setMake("make").setModel("model").setColor("red");
 
             var json = objectMapper.writeValueAsString(carRequest);
 
@@ -79,7 +80,8 @@ class CarControllerTest extends IntegrationTestBase {
                     .andExpect(jsonPath("$.id", notNullValue()))
                     .andExpect(jsonPath("$.vin", equalTo(carRequest.getVin())))
                     .andExpect(jsonPath("$.make", equalTo(carRequest.getMake())))
-                    .andExpect(jsonPath("$.model", equalTo(carRequest.getModel())));
+                    .andExpect(jsonPath("$.model", equalTo(carRequest.getModel())))
+                    .andExpect(jsonPath("$.color", equalTo(carRequest.getColor())));
         }
     }
 
@@ -89,7 +91,7 @@ class CarControllerTest extends IntegrationTestBase {
         @Test
         void happyPath() throws Exception {
             // Arrange
-            var car = new Car().setVin("vin").setMake("make").setModel("model");
+            var car = new Car().setVin("vin").setMake("make").setModel("model").setColor("red");
             carRepository.save(car);
 
             // Act & Assert
@@ -98,7 +100,8 @@ class CarControllerTest extends IntegrationTestBase {
                     .andExpect(jsonPath("$.id", equalTo(car.getId())))
                     .andExpect(jsonPath("$.vin", equalTo(car.getVin())))
                     .andExpect(jsonPath("$.make", equalTo(car.getMake())))
-                    .andExpect(jsonPath("$.model", equalTo(car.getModel())));
+                    .andExpect(jsonPath("$.model", equalTo(car.getModel())))
+                    .andExpect(jsonPath("$.color", equalTo(car.getColor())));
         }
 
         @Test
@@ -112,16 +115,77 @@ class CarControllerTest extends IntegrationTestBase {
     }
 
     @Nested
+    class UpdateCar {
+
+        @Test
+        void happyPath() throws Exception {
+            // Arrange
+            var car = new Car().setVin("vin").setMake("make").setModel("model").setColor("red");
+            carRepository.save(car);
+
+            var updatedCar = new CarResource().setVin(car.getVin()).setMake(car.getMake()).setModel(car.getModel()).setColor("yellow");
+
+            var json = objectMapper.writeValueAsString(updatedCar);
+
+            // Act & Assert
+            mockMvc.perform(put(BASE_URL + "/" + car.getId()).contentType(MediaType.APPLICATION_JSON).content(json))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", equalTo(car.getId())))
+                    .andExpect(jsonPath("$.color", equalTo(updatedCar.getColor())));
+        }
+
+        @Test
+        void readOnlyPropertiesAreNotUpdated() throws Exception {
+            // Arrange
+            var car = new Car().setVin("vin").setMake("make").setModel("model").setColor("red");
+            carRepository.save(car);
+
+            var updatedCar = new CarResource().setVin("updated vin").setMake("updated make").setModel("updated model").setColor(car.getColor());
+
+            var json = objectMapper.writeValueAsString(updatedCar);
+
+            // Act & Assert
+            mockMvc.perform(put(BASE_URL + "/" + car.getId()).contentType(MediaType.APPLICATION_JSON).content(json))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id", equalTo(car.getId())))
+                    .andExpect(jsonPath("$.vin", equalTo(car.getVin())))
+                    .andExpect(jsonPath("$.make", equalTo(car.getMake())))
+                    .andExpect(jsonPath("$.model", equalTo(car.getModel())));
+        }
+
+        @Test
+        void returns404_whenCarIdIsNotFound() throws Exception {
+            // Arrange
+            int badId = 9999;
+            var updatedCar = new CarResource().setVin("vin").setMake("make").setModel("model").setColor("yellow");
+
+            var json = objectMapper.writeValueAsString(updatedCar);
+
+            mockMvc.perform(put(BASE_URL + "/" + badId).contentType(MediaType.APPLICATION_JSON).content(json))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
     class DeleteCar {
 
         @Test
         void happyPath() throws Exception {
             // Arrange
-            var car = new Car().setVin("vin").setMake("make").setModel("model");
+            var car = new Car().setVin("vin").setMake("make").setModel("model").setColor("red");
             carRepository.save(car);
 
             // Act & Assert
             mockMvc.perform(delete(BASE_URL + "/" + car.getId())).andExpect(status().isNoContent());
+        }
+
+        @Test
+        void returns404_whenCarIdIsNotFound() throws Exception {
+            // Arrange
+            int badId = 9999;
+
+            // Act & Assert
+            mockMvc.perform(delete(BASE_URL + "/" + badId)).andExpect(status().isNotFound());
         }
     }
 }
