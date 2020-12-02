@@ -11,9 +11,10 @@ public class CarResource implements ResourceObject<Car> {
     private String vin;
     private String make;
     private String model;
+    private String color;
 
     @Override
     public Car toModelObject() {
-        return new Car().setVin(vin).setMake(make).setModel(model);
+        return new Car().setVin(vin).setMake(make).setModel(model).setColor(color);
     }
 }
