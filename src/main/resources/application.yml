@@ -1,11 +1,11 @@
 server:
   servlet:
     context-path: /api/emr/example
-  port: 8083
+  port: 8081
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/${DB_NAME}
+    url: jdbc:postgresql://localhost:5432/example
     username: postgres
     password: postgres
   liquibase:
