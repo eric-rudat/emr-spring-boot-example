@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset: eric-rudat:v1.0
+--changeset eric-rudat:v1.0
 --comment: creates car table
 create table if not exists car
 (
